@@ -1,0 +1,37 @@
+= What's this?
+
+This is a showcase on how to extend an existing Spring Boot application with plugins packaged as jar files.
+
+== Why?
+Platform creators typically want to provide users with an opportunity to extend the platform.
+
+== How?
+A custom classloader `PluginClassloader` has been created and plugged into SpringAppication. This makes Spring scan and load all classes and resources using this classloader. The main feature of this classloader is that it keeps references to jars users uploaded and allows loading these classes. The list of references (jars) can be refreshed at any time, in runtime. Application context reload is achieved by using spring actuator. That way, there's a short period of platform unavailability, but the process continues to run. Restart can only be observed by a short period of endpoint unavailability.
+
+== Walkthrough
+=== Build
+`./mvnw clean package`
+
+=== Run
+`java -jar target/plugin-platform-0.0.1-SNAPSHOT.jar`
+
+=== What's on the classpath?
+Rather than just saying what's on the classpath let's take it a step further and check which HTTP endpoints are available in the app, and by doing that - verify that the Spring based plugin (with `@Controller` inside) is loaded.
+
+1. Start by checking what's available before you upload anything +
+`curl 'http://localhost:8080/introspect/endpoints'`
+
+2. Upload a plugin with spring `@Controller` inside +
+`curl --request POST 'http://localhost:8080/plugins/upload' --form 'file=@"spring-plugin/target/spring-plugin-0.0.1-SNAPSHOT.jar"'`
+
+3. Restart the app context (remember, the process keeps running) +
+`curl --request POST 'http://localhost:8080/actuator/restart'`
+
+4. Check what's available once again. You should be seeing a new endpoint `"/springController"` which you can call with +
+`curl 'http://localhost:8080/springController'` +
+This should return HTTP 200 with content `Hello from SpringController!` response.
+
+
+
+== Tell me more
+What this approach gives you is that you don't have to have the plugin jars on the filesystem in the moment the app is started. When `java -jar` is ran, you can fetch the plugins from some external location, copy them over onto the filesystem and then execute `SpringApplication.run(args)`. This makes your platform cloud ready, and you don't have to worry about which plugins have to be in the Docker image.
