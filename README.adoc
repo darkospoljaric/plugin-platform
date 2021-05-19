@@ -8,7 +8,7 @@ Platform creators typically want to provide users with an opportunity to extend 
 image::mandalorian.jpeg[]
 
 == How?
-A custom classloader `PluginClassloader` has been created and plugged into SpringApplication. This makes Spring scan and load all classes and resources using this classloader. The main feature of this classloader is that it keeps references to jars users uploaded and allows loading classes packaged within them. The list of references (jars) can be refreshed at any time, in runtime. Remember, the classloader doesn't store classes, it only loads them - and JVM stores them. Application context reload is achieved by using spring actuator. That way, there's a short period of platform unavailability, but the process continues to run. Restart can only be observed by a short period of endpoint unavailability.
+A custom classloader `PluginClassloader` has been created and plugged into SpringApplication. This makes Spring scan and load all classes and resources using this classloader. The main feature of this classloader is that it keeps references to jars users uploaded and allows loading classes packaged within them. The list of references (jars) can be refreshed at any time, in runtime. Remember, the classloader doesn't store classes, it only loads them - JVM stores them. Application context reload is achieved by using spring actuator. That way, there's a short period of platform unavailability, but the process continues to run. Restart can only be observed by a short period of endpoint unavailability.
 
 == Walkthrough
 === Build
