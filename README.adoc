@@ -31,7 +31,7 @@ Rather than just saying what's on the classpath let's take it a step further and
 
 4. Check what's available once again. You should be seeing a new endpoint `"/springController"` which you can call with +
 `curl 'http://localhost:8080/springController'` +
-This should return HTTP 200 with content `Hello from SpringController!` response.
+This should return HTTP 200 with content `Hello from SpringController!`
 
 
 
