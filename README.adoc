@@ -33,7 +33,5 @@ Rather than just saying what's on the classpath let's take it a step further and
 `curl 'http://localhost:8080/springController'` +
 This should return HTTP 200 with content `Hello from SpringController!`
 
-
-
 == Tell me more
 What this approach gives you is that you don't have to have the plugin jars on the filesystem at the moment the app is started. When `java -jar` is run, you can fetch the plugins from some external location, copy them over onto the filesystem and then execute `SpringApplication.run(args)`. This makes your platform cloud ready, and you don't have to worry about which plugins have to be in the Docker image.
