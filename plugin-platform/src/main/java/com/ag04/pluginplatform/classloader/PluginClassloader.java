@@ -9,9 +9,6 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-
 public class PluginClassloader extends ClassLoader {
 
     private final String pluginsFolder;
@@ -44,25 +41,29 @@ public class PluginClassloader extends ClassLoader {
     @Override
     protected Class<?> findClass(final String name) throws ClassNotFoundException {
         String className = name.replace('.', '/').concat(".class");
-        Optional<URL> optionalURL = getClassUrl(className);
+        List<URL> resourceUrl = getResourceUrl(className);
 
-        return optionalURL.map(classUrl -> {
-            byte[] bytes = getBytes(classUrl);
+        if (resourceUrl.size() > 0) {
+            URL url = resourceUrl.iterator().next();
+            byte[] bytes = getBytes(url);
             Class<?> clazz = defineClass(name, bytes, 0, bytes.length);
             resolveClass(clazz);
             return clazz;
-        }).orElseThrow(ClassNotFoundException::new);
+        } else {
+            throw new ClassNotFoundException();
+        }
     }
 
     @Override
     protected URL findResource(final String name) {
-        return getClassUrl(name).orElse(null);
+        List<URL> resourceUrls = getResourceUrl(name);
+        return resourceUrls.isEmpty() ? null : resourceUrls.iterator().next();
     }
 
     @Override
     protected Enumeration<URL> findResources(final String name) {
-        Optional<URL> classUrlOptional = getClassUrl(name);
-        return classUrlOptional.map(url -> Collections.enumeration(Collections.singletonList(url))).orElse(null);
+        List<URL> urls = getResourceUrl(name);
+        return Collections.enumeration(urls);
     }
 
     private byte[] getBytes(final URL classUrl) {
@@ -73,17 +74,16 @@ public class PluginClassloader extends ClassLoader {
         }
     }
 
-    private Optional<URL> getClassUrl(String className) {
+    private List<URL> getResourceUrl(String className) {
+        List<URL> urls = new ArrayList<>();
         for (JarFile jar : jars) {
             ZipEntry entry = jar.getEntry(className);
-            if (entry == null) {
-                continue;
+            if (entry != null) {
+                urls.add(createUrl(entry.getName(), jar));
             }
-
-            return of(createUrl(entry.getName(), jar));
         }
 
-        return empty();
+        return urls;
     }
 
     private URL createUrl(final String className, final JarFile jarFile) {

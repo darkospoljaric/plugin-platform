@@ -17,6 +17,7 @@
     <modules>
         <module>plugin-platform</module>
         <module>spring-plugin</module>
+        <module>another-spring-plugin</module>
     </modules>
 
 </project>
