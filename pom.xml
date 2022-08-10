@@ -19,6 +19,5 @@
         <module>spring-plugin</module>
         <module>another-spring-plugin</module>
     </modules>
-
-         
+   
 </project>
